@@ -31,4 +31,9 @@ tạo user người đănh nhập
 <img width="826" height="218" alt="image" src="https://github.com/user-attachments/assets/8906611f-a572-4df8-b54e-ebe663f92f95" />
 cấu hình nodered
 <img width="1240" height="801" alt="image" src="https://github.com/user-attachments/assets/68afd3ad-5946-46c9-a616-914032c0dfe0" />
+mở grafana
+<img width="1918" height="993" alt="image" src="https://github.com/user-attachments/assets/0c509f4d-ad1f-4ee6-bf03-96c8fe1582ad" />
+connection insfluxdb
+<img width="1460" height="238" alt="image" src="https://github.com/user-attachments/assets/de61d43d-0cf0-489d-b4e7-cbd6bcc8b44d" />
+
 
