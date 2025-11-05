@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>IoT Dashboard - Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Login Form Styles */
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            color: #333;
+        }
+
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .demo-accounts {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .demo-accounts h4 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .demo-account {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .demo-account:last-child {
+            border-bottom: none;
+        }
+
+        /* Dashboard Styles - Ẩn ban đầu */
+        .dashboard {
+            display: none;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .stats { 
+            display: flex; 
+            gap: 20px; 
+            margin-bottom: 20px; 
+        }
+
+        .stat-card { 
+            background: rgba(255,255,255,0.9); 
+            padding: 20px; 
+            border-radius: 10px; 
+            color: #333;
+            flex: 1;
+            text-align: center;
+        }
+
+        .sensor-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .loading { 
+            text-align: center; 
+            padding: 20px; 
+            color: white; 
+        }
+
+        .user-info {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div class="login-container" id="loginForm">
+        <h2>🔐 IoT Dashboard Login</h2>
+        
+        <form id="loginFormElement">
+            <div class="form-group">
+                <label for="username">Tên đăng nhập:</label>
+                <input type="text" id="username" placeholder="Nhập username..." required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Mật khẩu:</label>
+                <input type="password" id="password" placeholder="Nhập mật khẩu..." required>
+            </div>
+            
+            <button type="submit" class="login-btn">Đăng nhập</button>
+        </form>
+
+        <div class="demo-accounts">
+            <h4>📋 Tài khoản demo:</h4>
+            <div class="demo-account"><strong>Admin:</strong> admin / admin123</div>
+            <div class="demo-account"><strong>User:</strong> user / user123</div>
+            <div class="demo-account"><strong>Viewer:</strong> viewer / viewer123</div>
+            <div class="demo-account"><strong>Hoặc bất kỳ tài khoản nào</strong></div>
+        </div>
+    </div>
+
+    <!-- Dashboard (Ẩn ban đầu) -->
+    <div class="dashboard" id="dashboard">
+        <div class="container">
+            <div class="header">
+                <h1>📊 IoT Dashboard</h1>
+                <div>
+                    <div class="user-info" id="userInfo">
+                        Xin chào: <span id="currentUser">--</span> | 
+                        Vai trò: <span id="userRole">--</span>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">🚪 Đăng xuất</button>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>🌡️ Nhiệt độ TB</h3>
+                    <div id="avgTemp" style="font-size: 24px; font-weight: bold;">--°C</div>
+                </div>
+                <div class="stat-card">
+                    <h3>💧 Độ ẩm TB</h3>
+                    <div id="avgHumi" style="font-size: 24px; font-weight: bold;">--%</div>
+                </div>
+                <div class="stat-card">
+                    <h3>📱 Thiết bị</h3>
+                    <div id="deviceCount" style="font-size: 24px; font-weight: bold;">--</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h2>📋 Dữ liệu cảm biến</h2>
+                    <div id="sensorList" class="loading">
+                        <i>Đang tải dữ liệu...</i>
+                    </div>
+                </div>
+                <div>
+                    <h2>📈 Biểu đồ</h2>
+                    <canvas id="sensorChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; color: rgba(255,255,255,0.8);">
+                <i>Cập nhật lần cuối: <span id="lastUpdate">--</span></i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // QUAN TRỌNG: Sửa thành domain
+        const API_BASE = 'http://nguyentrungkien.com:1880';
+        let sensorChart;
+        let currentUser = null;
+
+        // Demo accounts
+        const demoAccounts = {
+            'admin': { password: 'admin123', role: 'Quản trị viên' },
+            'user': { password: 'user123', role: 'Người dùng' },
+            'viewer': { password: 'viewer123', role: 'Xem only' },
+            'demo': { password: 'demo123', role: 'Demo User' }
+        };
+
+        // Login function
+        document.getElementById('loginFormElement').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Demo authentication - chấp nhận bất kỳ tài khoản nào hoặc demo accounts
+            if (demoAccounts[username] && demoAccounts[username].password === password) {
+                // Tài khoản demo
+                currentUser = {
+                    username: username,
+                    role: demoAccounts[username].role
+                };
+            } else if (username && password) {
+                // Tài khoản bất kỳ
+                currentUser = {
+                    username: username,
+                    role: 'Người dùng'
+                };
+            } else {
+                alert('Vui lòng nhập username và password!');
+                return;
+            }
+            
+            loginSuccess();
+        });
+
+        function loginSuccess() {
+            // Ẩn form đăng nhập, hiện dashboard
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            
+            // Hiển thị thông tin user
+            document.getElementById('currentUser').textContent = currentUser.username;
+            document.getElementById('userRole').textContent = currentUser.role;
+            
+            // Khởi tạo dashboard
+            initChart();
+            loadSensorData();
+            setInterval(loadSensorData, 5000);
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('loginFormElement').reset();
+        }
+
+        // Check if already logged in (for demo)
+        function checkExistingLogin() {
+            const savedUser = localStorage.getItem('iot_demo_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                loginSuccess();
+            }
+        }
+
+        // Save login state
+        function saveLoginState() {
+            if (currentUser) {
+                localStorage.setItem('iot_demo_user', JSON.stringify(currentUser));
+            }
+        }
+
+        // Dashboard functions
+        function initChart() {
+            const ctx = document.getElementById('sensorChart').getContext('2d');
+            sensorChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Nhiệt độ (°C)',
+                            data: [],
+                            borderColor: '#ff4444',
+                            backgroundColor: 'rgba(255,68,68,0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Độ ẩm (%)',
+                            data: [],
+                            borderColor: '#4444ff',
+                            backgroundColor: 'rgba(68,68,255,0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        }
+
+        async function loadSensorData() {
+            try {
+                const response = await fetch(`${API_BASE}/api/data`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    displaySensorData(result.data);
+                    updateStatistics(result.data);
+                    updateChart(result.data);
+                    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('sensorList').innerHTML = 
+                    '<div style="color: red;">Lỗi kết nối API - Đang dùng dữ liệu mẫu</div>';
+                
+                // Fallback to mock data
+                useMockData();
+            }
+        }
+
+        function useMockData() {
+            const mockData = [
+                {
+                    device_name: "Sensor_01",
+                    temperature: (Math.random() * 10 + 20).toFixed(1),
+                    humidity: (Math.random() * 20 + 60).toFixed(1),
+                    created_at: new Date().toISOString()
+                },
+                {
+                    device_name: "Sensor_02",
+                    temperature: (Math.random() * 10 + 22).toFixed(1),
+                    humidity: (Math.random() * 20 + 55).toFixed(1),
+                    created_at: new Date(Date.now() - 300000).toISOString()
+                }
+            ];
+            
+            displaySensorData(mockData);
+            updateStatistics(mockData);
+            updateChart(mockData);
+        }
+
+        function displaySensorData(data) {
+            const container = document.getElementById('sensorList');
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div>Không có dữ liệu</div>';
+                return;
+            }
+
+            let html = '';
+            data.forEach(item => {
+                const time = new Date(item.created_at).toLocaleTimeString();
+                html += `
+                    <div class="sensor-item">
+                        <div>
+                            <strong>${item.device_name}</strong><br>
+                            <small>${time}</small>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #ff4444; font-weight: bold;">${item.temperature}°C</div>
+                            <div style="color: #4444ff; font-weight: bold;">${item.humidity}%</div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function updateStatistics(data) {
+            if (!data || data.length === 0) return;
+            
+            const avgTemp = (data.reduce((sum, item) => sum + parseFloat(item.temperature), 0) / data.length).toFixed(1);
+            const avgHumi = (data.reduce((sum, item) => sum + parseFloat(item.humidity), 0) / data.length).toFixed(1);
+            const uniqueDevices = new Set(data.map(item => item.device_name)).size;
+            
+            document.getElementById('avgTemp').textContent = avgTemp + '°C';
+            document.getElementById('avgHumi').textContent = avgHumi + '%';
+            document.getElementById('deviceCount').textContent = uniqueDevices;
+        }
+
+        function updateChart(data) {
+            const labels = data.map(item => new Date(item.created_at).toLocaleTimeString()).reverse();
+            const temps = data.map(item => parseFloat(item.temperature)).reverse();
+            const humids = data.map(item => parseFloat(item.humidity)).reverse();
+            
+            sensorChart.data.labels = labels;
+            sensorChart.data.datasets[0].data = temps;
+            sensorChart.data.datasets[1].data = humids;
+            sensorChart.update();
+        }
+
+        // Khởi động
+        checkExistingLogin();
+    </script>
+</body>
+</html>
